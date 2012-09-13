@@ -51,11 +51,42 @@ module Mixpanel
     end
 
     def track_event(event, properties = {})
-      options = @super_properties.merge({ :time => Time.now.utc.to_i, :ip => ip })
+      options = @super_properties.merge({ :time => Time.now.utc.to_i, :ip => ip, :mp_browser => browser })
       options.merge!( :token => @token ) if @token
       options.merge!(properties)
       params = build_event(event, options)
       parse_response request(params)
+    end
+    
+    def browser
+      ua = @env['HTTP_USER_AGENT']
+      if ua.include?('Opera')
+        if ua.include?('Mini')
+          'Opera Mini'
+        else
+          'Opera'
+        end
+      elsif ua.include?('Chrome')
+        'Chrome'
+      elsif ua.include?('Apple')
+        if ua.include?('Mobile')
+          'iOS Mobile'
+        else
+          'Safari'
+        end
+      elsif ua.include?('Android')
+        'Android Mobile'
+      elsif ua.include?('KDE')
+        'Konqueror'
+      elsif ua.include?('Firefox')
+        'Firefox'
+      elsif ua.include?('MSIE')
+        'Internet Explorer'
+      elsif ua.include?('Gecko')
+        'Mozilla'
+      else
+        ''
+      end
     end
 
     def ip
