@@ -59,7 +59,7 @@ module Mixpanel
     end
     
     def browser
-      ua = @env['HTTP_USER_AGENT']
+      ua = @env['HTTP_USER_AGENT'] || ''
       if ua.include?('Opera')
         if ua.include?('Mini')
           'Opera Mini'
