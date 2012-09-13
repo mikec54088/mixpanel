@@ -12,6 +12,7 @@ module Mixpanel
       @async = options.fetch(:async, false)
       @url = options.fetch(:url, 'http://api.mixpanel.com/track/?data=')
       @persist = options.fetch(:persist, false)
+      @super_properties = {}
 
       if @persist
         @env["rack.session"]["mixpanel_events"] ||= []
@@ -44,9 +45,13 @@ module Mixpanel
     def append_api(type, *args)
       queue << [type, args.map {|arg| arg.to_json}]
     end
+    
+    def register(properties)
+      @super_properties.merge!(properties)
+    end
 
     def track_event(event, properties = {})
-      options = { :time => Time.now.utc.to_i, :ip => ip }
+      options = @super_properties.merge({ :time => Time.now.utc.to_i, :ip => ip })
       options.merge!( :token => @token ) if @token
       options.merge!(properties)
       params = build_event(event, options)
